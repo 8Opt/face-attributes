@@ -1,2 +1,3 @@
 # eKYC
-Building an eKYC system, including human tracking
+
+Building a face recognition service
