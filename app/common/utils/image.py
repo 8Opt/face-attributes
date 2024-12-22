@@ -17,6 +17,31 @@ def xyxy_to_xywh(xyxy):
     height = y_max - y_min
     return (x_min, y_min, width, height)
 
+def crop_image(image, bbox):
+    """
+    Crops an image using a bounding box in (x_min, y_min, x_max, y_max) format.
+    Ensures the bounding box coordinates are integers.
+
+    Args:
+        image (numpy.ndarray): The input image as a NumPy array.
+        bbox (tuple): The bounding box as (x_min, y_min, x_max, y_max).
+
+    Returns:
+        numpy.ndarray: The cropped image.
+    """
+    # Convert bounding box to integers
+    x_min, y_min, x_max, y_max = map(int, bbox)
+
+    # Ensure the coordinates are within the image boundaries
+    x_min = max(0, x_min)
+    y_min = max(0, y_min)
+    x_max = min(image.shape[1], x_max)
+    y_max = min(image.shape[0], y_max)
+
+    # Crop the image
+    cropped_image = image[y_min:y_max, x_min:x_max]
+    return cropped_image
+
 
 def adjust_bbox(person_bbox, face_bbox):
     """
@@ -83,47 +108,20 @@ def adjust_landmarks(landmarks, face_bbox):
     return adjusted_landmarks
 
 
-# ===== DRAWING =====
-def drawing(
+def draw_bounding_box(
     image,
     bbox,
-    landmarks,
     caption=None,
     bbox_color=(0, 255, 0),
-    landmark_color=(0, 0, 255),
     text_color=(0, 0, 0),
     thickness=2,
-    radius=3,
     font_scale=0.5,
 ):
-    """
-    Draws a bounding box, landmarks, and an optional caption on an image.
-
-    Args:
-        image (numpy.ndarray): The image on which to draw.
-        bbox (tuple): Bounding box as (x, y, w, h).
-        landmarks (list of tuples): List of (x, y) coordinates for the landmarks.
-        caption (str): Optional text to display above the bounding box.
-        bbox_color (tuple): Color of the bounding box in BGR (default: green).
-        landmark_color (tuple): Color of the landmarks in BGR (default: red).
-        text_color (tuple): Color of the caption text in BGR (default: white).
-        thickness (int): Thickness of the bounding box lines.
-        radius (int): Radius of the landmarks.
-        font_scale (float): Font scale for the caption text.
-
-    Returns:
-        numpy.ndarray: The image with the bounding box, landmarks, and caption drawn.
-    """
-    # Draw the bounding box
-    x, y, w, h = bbox
+    "Draw the bounding box"
+    x, y, w, h = map(int, bbox)
     cv2.rectangle(image, (x, y), (x + w, y + h), bbox_color, thickness)
 
-    # Draw the landmarks
-    for landmark in landmarks:
-        lx, ly = landmark
-        cv2.circle(image, (int(lx), int(ly)), radius, landmark_color, -1)
-
-    # Draw the caption above the bounding box
+    "Draw the caption above the bounding box"
     if caption:
         # Calculate text size
         (text_width, text_height), _ = cv2.getTextSize(
@@ -145,4 +143,12 @@ def drawing(
             lineType=cv2.LINE_AA,
         )
 
+    return image
+
+
+def draw_landmarks(image, landmarks, color=(0, 0, 255), radius=2):
+    """Draws landmarks on the frame."""
+    for landmark in landmarks:
+        x, y = landmark
+        cv2.circle(image, (int(x), int(y)), radius, color, -1)
     return image

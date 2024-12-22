@@ -1,7 +1,8 @@
 import cv2
 
-from app.modules import (FaceInsightExtractor, PersonDetect, Tracking,
-                         draw_bounding_box, draw_landmarks)
+from app.modules import (FaceInsightExtractor, PersonDetect, Tracking)
+
+from app.common.utils.image import (draw_bounding_box, draw_landmarks)
 
 
 def test_inference():
