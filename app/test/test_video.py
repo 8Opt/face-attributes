@@ -8,7 +8,7 @@ from app.common.utils.image import (adjust_bbox, adjust_landmarks, xyxy_to_xywh,
                                     crop_image)
 
 
-model = PersonDetect(model_path='./weights/yolo11n.pt')
+model = PersonDetect(model_path='yolov8n.pt')
 tracker = Tracking()
 insightface = FaceInsightExtractor()
 
@@ -54,7 +54,8 @@ def test_video(video_path: str = ""):
                     landmarks = adjust_landmarks(landmarks, bbox)
 
                     # Create caption (optional)
-                    caption = f"Track ID: {resp[4]}\nFace Detection Rate: {str(face_resp.get('prob'))}\n"
+                    face_detection_prob ="{:.3f}".format(float(face_resp.get('prob')))  
+                    caption = f"Track ID: {int(resp[4])}-Face Detection Rate: {str(face_detection_prob)}"
 
                     # Update track information
                     track_counter[resp[4]] = (bbox, landmarks, caption)
@@ -88,4 +89,7 @@ if __name__ == "__main__":
         1. 354.20252084732056
         2. 347.8046991825104
         3. 458.28852438926697
+        4. 342.1266493797302
+    3/ YOLOv8:
+        1. 349.38599395751953
     """

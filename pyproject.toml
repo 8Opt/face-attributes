@@ -7,5 +7,6 @@ requires-python = ">=3.10"
 dependencies = [
     "boxmot>=11.0.6",
     "fastapi[standard]>=0.115.6",
+    "pipreqs>=0.5.0",
     "ultralytics>=8.3.53",
 ]

@@ -3,10 +3,22 @@ repos:
   # Ruff version.
   rev: v0.8.4
   hooks:
-    # Run the linter.
+    # Run the linter with fixes.
     - id: ruff
       types_or: [ python, pyi ]
       args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
       types_or: [ python, pyi ]
+    # Add type hints.
+    - id: ruff-mypy
+      types_or: [ python, pyi ]
+      args: [ --show-error-codes ]  # Only show error codes
+    # Organize imports.
+    - id: isort
+      types_or: [ python, pyi ]
+      args: [ --profile=black ]  # Use Black profile for import sorting
+    # Add docstrings.
+    - id: pydocstyle
+      types_or: [ python, pyi ]
+      args: [ --convention=pep257 ]  # Follow PEP 257 for docstrings
