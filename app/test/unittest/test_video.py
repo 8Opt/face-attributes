@@ -1,16 +1,22 @@
 import cv2
 import time
 
-from app.modules import (FaceInsightExtractor, PersonDetect, Tracking)
+from app.modules import FaceInsightExtractor, PersonDetect, Tracking
 
-from app.common.utils.image import (adjust_bbox, adjust_landmarks, xyxy_to_xywh, 
-                                    draw_bounding_box, draw_landmarks, 
-                                    crop_image)
+from app.common.utils.image import (
+    adjust_bbox,
+    adjust_landmarks,
+    xyxy_to_xywh,
+    draw_bounding_box,
+    draw_landmarks,
+    crop_image,
+)
 
 
-model = PersonDetect(model_path='yolov8n.pt')
+model = PersonDetect(model_path="yolov8n.pt")
 tracker = Tracking()
 insightface = FaceInsightExtractor()
+
 
 def test_video(video_path: str = ""):
     """
@@ -40,7 +46,9 @@ def test_video(video_path: str = ""):
         # Process each tracked person
         if len(track_resp) != 0:
             for resp in track_resp:
-                person_frame = crop_image(image=frame, bbox=resp[:4])  # Crop using track_resp
+                person_frame = crop_image(
+                    image=frame, bbox=resp[:4]
+                )  # Crop using track_resp
 
                 # Extract face insights
                 face_resp = insightface.inference(frame=person_frame)
@@ -54,7 +62,7 @@ def test_video(video_path: str = ""):
                     landmarks = adjust_landmarks(landmarks, bbox)
 
                     # Create caption (optional)
-                    face_detection_prob ="{:.3f}".format(float(face_resp.get('prob')))  
+                    face_detection_prob = "{:.3f}".format(float(face_resp.get("prob")))
                     caption = f"Track ID: {int(resp[4])}-Face Detection Rate: {str(face_detection_prob)}"
 
                     # Update track information
@@ -62,7 +70,9 @@ def test_video(video_path: str = ""):
 
                     # Draw bounding box and landmarks (if available)
                     if bbox:
-                        frame = draw_bounding_box(frame, xyxy_to_xywh(bbox), caption=caption)
+                        frame = draw_bounding_box(
+                            frame, xyxy_to_xywh(bbox), caption=caption
+                        )
                     # if landmarks:
                     #     frame = draw_landmarks(frame, landmarks)
 
@@ -79,7 +89,7 @@ def test_video(video_path: str = ""):
 
 
 if __name__ == "__main__":
-    test_video(video_path='./examples/videos/face_detection.mp4')  
+    test_video(video_path="./examples/videos/face_detection.mp4")
     """
     Original clip's length: 38s
     

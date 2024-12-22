@@ -2,12 +2,17 @@ import cv2
 import time
 import threading
 from queue import Queue, Empty
-from app.modules import (FaceInsightExtractor, PersonDetect, Tracking)
-from app.common.utils.image import (adjust_bbox, adjust_landmarks, xyxy_to_xywh, 
-                                    draw_bounding_box, crop_image)
+from app.modules import FaceInsightExtractor, PersonDetect, Tracking
+from app.common.utils.image import (
+    adjust_bbox,
+    adjust_landmarks,
+    xyxy_to_xywh,
+    draw_bounding_box,
+    crop_image,
+)
 
 # Initialize models
-model = PersonDetect(model_path='./weights/yolo11n.pt')
+model = PersonDetect(model_path="./weights/yolo11n.pt")
 tracker = Tracking()
 insightface = FaceInsightExtractor()
 
@@ -48,11 +53,13 @@ def process_frames(frame_queue, result_queue, stop_event):
                     bbox = adjust_bbox(resp[:4], bbox)
 
                     # Create caption
-                    face_detection_prob = "{:.3f}".format(float(face_resp.get('prob')))
+                    face_detection_prob = "{:.3f}".format(float(face_resp.get("prob")))
                     caption = f"Track ID: {int(resp[4])}-Face Detection Rate: {str(face_detection_prob)}"
 
                     if bbox:
-                        frame = draw_bounding_box(frame, xyxy_to_xywh(bbox), caption=caption)
+                        frame = draw_bounding_box(
+                            frame, xyxy_to_xywh(bbox), caption=caption
+                        )
 
         # Put processed frame into the result queue
         if not result_queue.full():
@@ -71,12 +78,23 @@ def display_frames(result_queue, stop_event):
     cv2.destroyAllWindows()
 
 
-def main(video_path: str, frame_queue: Queue, result_queue: Queue, stop_event:threading.Event):
+def main(
+    video_path: str,
+    frame_queue: Queue,
+    result_queue: Queue,
+    stop_event: threading.Event,
+):
     start_time = time.time()
 
-    capture_thread = threading.Thread(target=capture_frames, args=(video_path, frame_queue, stop_event))
-    process_thread = threading.Thread(target=process_frames, args=(frame_queue, result_queue, stop_event))
-    display_thread = threading.Thread(target=display_frames, args=(result_queue, stop_event))
+    capture_thread = threading.Thread(
+        target=capture_frames, args=(video_path, frame_queue, stop_event)
+    )
+    process_thread = threading.Thread(
+        target=process_frames, args=(frame_queue, result_queue, stop_event)
+    )
+    display_thread = threading.Thread(
+        target=display_frames, args=(result_queue, stop_event)
+    )
 
     capture_thread.start()
     process_thread.start()
@@ -94,7 +112,12 @@ if __name__ == "__main__":
     result_queue = Queue(maxsize=10)
     stop_event = threading.Event()
 
-    main(video_path='./examples/videos/face_detection.mp4', frame_queue=frame_queue, result_queue=result_queue, stop_event=stop_event)
+    main(
+        video_path="./examples/videos/face_detection.mp4",
+        frame_queue=frame_queue,
+        result_queue=result_queue,
+        stop_event=stop_event,
+    )
 
     """
     Original Length is 38s

@@ -17,6 +17,7 @@ def xyxy_to_xywh(xyxy):
     height = y_max - y_min
     return (x_min, y_min, width, height)
 
+
 def crop_image(image, bbox):
     """
     Crops an image using a bounding box in (x_min, y_min, x_max, y_max) format.
