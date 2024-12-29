@@ -14,7 +14,6 @@ from app.common.utils.image import (
 # Initialize models
 model = PersonDetect(model_path="./weights/yolo11n.pt")
 tracker = Tracking()
-insightface = FaceInsightExtractor()
 
 
 def capture_frames(video_path: str, frame_queue, stop_event):
@@ -38,28 +37,15 @@ def process_frames(frame_queue, result_queue, stop_event):
 
         # Detect people
         person_boxes = model.inference(frame=frame)
+        print(person_boxes)
         track_resp = tracker.inference(detections=person_boxes, frame=frame)
+        print()
 
-        # Process each tracked person
-        if len(track_resp) != 0:
-            for resp in track_resp:
-                person_frame = crop_image(image=frame, bbox=resp[:4])
+        caption = f"Track ID: {int(track_resp[4])}-Face Detection Rate: {str(track_resp[5])}"
 
-                # Extract face insights
-                face_resp = insightface.inference(frame=person_frame)
-                if face_resp:
-                    face_resp = face_resp[0]
-                    bbox = face_resp.get("bbox")
-                    bbox = adjust_bbox(resp[:4], bbox)
-
-                    # Create caption
-                    face_detection_prob = "{:.3f}".format(float(face_resp.get("prob")))
-                    caption = f"Track ID: {int(resp[4])}-Face Detection Rate: {str(face_detection_prob)}"
-
-                    if bbox:
-                        frame = draw_bounding_box(
-                            frame, xyxy_to_xywh(bbox), caption=caption
-                        )
+        frame = draw_bounding_box(
+            frame, xyxy_to_xywh(bbox), caption=caption
+        )
 
         # Put processed frame into the result queue
         if not result_queue.full():

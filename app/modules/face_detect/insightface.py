@@ -11,7 +11,7 @@ class FaceInsightExtractor(ServiceInterface):
 
     def __init__(
         self,
-        url: str = "http://0.0.0.0:18080/extract",
+        url: str = "http://192.168.103.81:18080/extract",
         name: str = "insightface_service",
     ):
         """
