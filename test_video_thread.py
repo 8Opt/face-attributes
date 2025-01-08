@@ -1,12 +1,12 @@
 import cv2
 import time
 import threading
-from queue import Queue, Empty
+from queue import Queue
 from app.modules import FaceInsightExtractor, PersonDetect, Tracking
 from app.common.utils.image import (
     adjust_bbox,
     adjust_landmarks,
-    xyxy_to_xywh,   
+    xyxy_to_xywh,
     draw_bounding_box,
     crop_image,
 )
@@ -16,6 +16,7 @@ model = PersonDetect(model_path="./weights/yolo11n.pt")
 tracker = Tracking()
 insightface = FaceInsightExtractor()
 track_counter = {}
+
 
 def capture_frames(video_path: str, frame_queue, stop_event):
     cap = cv2.VideoCapture(video_path or 0)
@@ -36,7 +37,7 @@ def process_frames(frame_queue, result_queue, stop_event):
     while not stop_event.is_set():
         frame = frame_queue.get()  # Wait for frames
 
-  # Detect people
+        # Detect people
         person_boxes = model.inference(frame=frame)
 
         track_resp = tracker.inference(detections=person_boxes, frame=frame)

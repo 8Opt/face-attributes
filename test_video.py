@@ -8,7 +8,6 @@ from app.common.utils.image import (
     adjust_landmarks,
     xyxy_to_xywh,
     draw_bounding_box,
-    draw_landmarks,
     crop_image,
 )
 

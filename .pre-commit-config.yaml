@@ -1,24 +1,25 @@
 repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  # Ruff version.
-  rev: v0.8.4
+  rev: v0.8.4   # Ruff version.
   hooks:
-    # Run the linter with fixes.
     - id: ruff
-      types_or: [ python, pyi ]
-      args: [ --fix ]
-    # Run the formatter.
+      name: ruff
+      description: "Run 'ruff' for extremely fast Python linting"
+      entry: ruff check --fix
+      language: python
+      types_or: [python, pyi]
+      args: []
+      require_serial: true
+      additional_dependencies: []
+      minimum_pre_commit_version: "2.9.2"
+
     - id: ruff-format
-      types_or: [ python, pyi ]
-    # Add type hints.
-    - id: ruff-mypy
-      types_or: [ python, pyi ]
-      args: [ --show-error-codes ]  # Only show error codes
-    # Organize imports.
-    - id: isort
-      types_or: [ python, pyi ]
-      args: [ --profile=black ]  # Use Black profile for import sorting
-    # Add docstrings.
-    - id: pydocstyle
-      types_or: [ python, pyi ]
-      args: [ --convention=pep257 ]  # Follow PEP 257 for docstrings
+      name: ruff-format
+      description: "Run 'ruff format' for extremely fast Python formatting"
+      entry: ruff format --force-exclude
+      language: python
+      types_or: [python, pyi]
+      args: []
+      require_serial: true
+      additional_dependencies: []
+      minimum_pre_commit_version: "2.9.2"

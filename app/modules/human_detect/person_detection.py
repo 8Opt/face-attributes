@@ -2,7 +2,6 @@ from typing import List, Any
 
 from ultralytics import YOLO
 from app.interface import ServiceInterface
-import numpy as np
 
 
 class PersonDetect(ServiceInterface):
