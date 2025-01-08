@@ -6,7 +6,7 @@ from app.modules import FaceInsightExtractor, PersonDetect, Tracking
 from app.common.utils.image import (
     adjust_bbox,
     adjust_landmarks,
-    xyxy_to_xywh,
+    xyxy_to_xywh,   
     draw_bounding_box,
     crop_image,
 )
@@ -14,7 +14,8 @@ from app.common.utils.image import (
 # Initialize models
 model = PersonDetect(model_path="./weights/yolo11n.pt")
 tracker = Tracking()
-
+insightface = FaceInsightExtractor()
+track_counter = {}
 
 def capture_frames(video_path: str, frame_queue, stop_event):
     cap = cv2.VideoCapture(video_path or 0)
@@ -35,18 +36,41 @@ def process_frames(frame_queue, result_queue, stop_event):
     while not stop_event.is_set():
         frame = frame_queue.get()  # Wait for frames
 
-        # Detect people
+  # Detect people
         person_boxes = model.inference(frame=frame)
-        print(person_boxes)
+
         track_resp = tracker.inference(detections=person_boxes, frame=frame)
-        print()
 
-        caption = f"Track ID: {int(track_resp[4])}-Face Detection Rate: {str(track_resp[5])}"
+        # Process each tracked person
+        if len(track_resp) != 0:
+            for resp in track_resp:
+                person_frame = crop_image(
+                    image=frame, bbox=resp[:4]
+                )  # Crop using track_resp
 
-        frame = draw_bounding_box(
-            frame, xyxy_to_xywh(bbox), caption=caption
-        )
+                # Extract face insights
+                face_resp = insightface.inference(frame=person_frame)
+                if face_resp:
+                    face_resp = face_resp[0]
 
+                    # Adjust bounding box and landmarks (if available)
+                    bbox = face_resp.get("bbox")
+                    bbox = adjust_bbox(resp[:4], bbox)
+                    landmarks = face_resp.get("landmarks")
+                    landmarks = adjust_landmarks(landmarks, bbox)
+
+                    # Create caption (optional)
+                    face_detection_prob = "{:.3f}".format(float(face_resp.get("prob")))
+                    caption = f"Track ID: {int(resp[4])}-Face Detection Rate: {str(face_detection_prob)}"
+
+                    # Update track information
+                    track_counter[resp[4]] = (bbox, landmarks, caption)
+
+                    # Draw bounding box and landmarks (if available)
+                    if bbox:
+                        frame = draw_bounding_box(
+                            frame, xyxy_to_xywh(bbox), caption=caption
+                        )
         # Put processed frame into the result queue
         if not result_queue.full():
             result_queue.put(frame)
@@ -105,19 +129,9 @@ if __name__ == "__main__":
         stop_event=stop_event,
     )
 
-    """
-    Original Length is 38s
-    1/ Test with YOLOv8 => detect more accurate
-        1. 11.272840738296509
-        2. 11.265024423599243
-        3. 11.573846340179443
-        4. 11.272615909576416
-        5. 11.24490237236023
 
-    2/ Test with YOLOv11
-        1. 11.3360595703125
-        2. 11.224684238433838
-        3. 11.339110374450684
-        4. 11.085111856460571
-        5. 11.240816831588745
-    """
+"""
+Test 
+    YOLOv11: 
+        1. 11.408824920654297
+"""
